@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
 )
@@ -14,7 +15,7 @@ type Job struct {
 
 type Result struct {
 	StatusCode int
-	error      error
+	Err        error
 }
 
 type Pool struct {
@@ -41,6 +42,15 @@ func NewPool(workerCount int, queueSize int) *Pool {
 	}
 
 	return p
+}
+
+func (p *Pool) Submit(job Job) error {
+	select {
+	case p.jobs <- job:
+		return nil
+	default:
+		return errors.New("worker queue full")
+	}
 }
 
 func (p *Pool) worker() {
