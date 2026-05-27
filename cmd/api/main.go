@@ -29,6 +29,8 @@ func main() {
 	mux.HandleFunc("/submit-request", func(w http.ResponseWriter, r *http.Request) {
 		resultChan := make(chan worker.Result, 1)
 
+		log.Println("On Submit Request Handler")
+
 		job := worker.Job{
 			Ctx:      r.Context(),
 			URL:      "https://httpbin.org/status/200",
