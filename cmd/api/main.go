@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/troymcgahey/go-thread-pool/internal/worker"
 )
 
@@ -15,7 +16,17 @@ func main() {
 		100, //Queue size
 	)
 
-	http.HandleFunc("/call-downstream", func(w http.ResponseWriter, r *http.Request) {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("ok"))
+	})
+
+	//Prometheus metrics endpoint
+	mux.Handle("/metrics", promhttp.Handler())
+
+	mux.HandleFunc("/call-downstream", func(w http.ResponseWriter, r *http.Request) {
 		resultChan := make(chan worker.Result, 1)
 
 		job := worker.Job{
@@ -49,5 +60,5 @@ func main() {
 	})
 
 	log.Println("server listening on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
