@@ -26,7 +26,7 @@ func main() {
 	//Prometheus metrics endpoint
 	mux.Handle("/metrics", promhttp.Handler())
 
-	mux.HandleFunc("/call-downstream", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/submit-request", func(w http.ResponseWriter, r *http.Request) {
 		resultChan := make(chan worker.Result, 1)
 
 		job := worker.Job{
