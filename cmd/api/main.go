@@ -12,8 +12,8 @@ import (
 
 func main() {
 	pool := worker.NewPool(
-		10,  //Number of workers
-		100, //Queue size
+		10, //Number of workers
+		5,  //Queue size
 	)
 
 	mux := http.NewServeMux()
@@ -59,6 +59,8 @@ func main() {
 		case <-r.Context().Done():
 			http.Error(w, "request cancelled", http.StatusRequestTimeout)
 		}
+
+		time.Sleep(5 * time.Second)
 	})
 
 	log.Println("server listening on :8080")
